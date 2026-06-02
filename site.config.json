@@ -1,0 +1,135 @@
+{
+  "site": {
+    "name": "InEvolving",
+    "url": "https://landing.inevolving.com"
+  },
+  "links": {
+    "appHome": "https://inevolving.inovasoft.tech",
+    "login": "https://inevolving.inovasoft.tech/login",
+    "cadastro": "https://inevolving.inovasoft.tech/cadastro"
+  },
+  "whatsapp": {
+    "baseUrl": "https://wa.me/5511963695485"
+  },
+  "spotlightPlanId": "starter-anual",
+  "plans": [
+    {
+      "id": "starter-mensal",
+      "name": "InEvolving Starter · Mensal",
+      "price": "24,99",
+      "priceSuffix": "/mês",
+      "annualBillingNote": null,
+      "originalPrice": null,
+      "badge": null,
+      "highlighted": false,
+      "nameAccent": "cyan",
+      "features": [
+        { "text": "Tarefas, Kanban e Objetivos", "included": true },
+        { "text": "Categorias e acompanhamento", "included": true },
+        { "text": "Motivação e cadastro de sonhos", "included": true },
+        { "text": "Vision board automático", "included": false },
+        { "text": "Geração por IA", "included": false }
+      ],
+      "description": "Comece a se organizar com método — tarefas, objetivos e motivação em um único lugar.",
+      "ctaLabel": "Assinar Starter Mensal",
+      "whatsappMessage": "Olá! Quero assinar o InEvolving Starter no plano mensal (R$ 24,99/mês). Quero aproveitar os 30 dias grátis."
+    },
+    {
+      "id": "starter-anual",
+      "name": "InEvolving Starter · Anual",
+      "price": "12,99",
+      "priceSuffix": "/mês",
+      "annualBillingNote": "Cobrança anual · R$ 155,88/ano",
+      "spotlightNote": "Cobrança anual · R$ 155,88/ano · menos de R$ 0,50/dia",
+      "originalPrice": null,
+      "badge": "Recomendado para começar",
+      "highlighted": false,
+      "nameAccent": "cyan",
+      "features": [
+        { "text": "Tarefas, Kanban e Objetivos", "included": true },
+        { "text": "Categorias e acompanhamento", "included": true },
+        { "text": "Motivação e cadastro de sonhos", "included": true },
+        { "text": "Vision board automático", "included": false },
+        { "text": "Geração por IA", "included": false }
+      ],
+      "description": "O ponto de partida ideal — clareza e método por menos de R$ 0,50 por dia.",
+      "spotlightDescription": "Comece por aqui — compare Pro e opções para equipes quando quiser.",
+      "ctaLabel": "Assinar Starter Anual",
+      "whatsappMessage": "Olá! Quero assinar o InEvolving Starter no plano anual (R$ 155,88/ano = R$ 12,99/mês). Quero aproveitar os 30 dias grátis."
+    },
+    {
+      "id": "pro-mensal",
+      "name": "InEvolving Pro · Mensal",
+      "price": "49,99",
+      "priceSuffix": "/mês",
+      "annualBillingNote": null,
+      "originalPrice": "79,99",
+      "badge": "Promoção · Próximos 200 assinantes",
+      "highlighted": true,
+      "nameAccent": "purple",
+      "features": [
+        { "text": "Todas as funcionalidades do Starter", "included": true },
+        { "text": "Dashboard e Finanças completas", "included": true },
+        { "text": "Vision board automático", "included": true },
+        { "text": "Geração por IA", "included": true },
+        { "text": "Livros & aprendizado", "included": true }
+      ],
+      "description": "Invista menos de R$ 2 por dia em evolução real — organize sua vida, acompanhe metas e use IA para mudar de resultado.",
+      "ctaLabel": "Assinar Pro Mensal",
+      "whatsappMessage": "Olá! Quero assinar o InEvolving Pro no plano mensal (promoção R$ 49,99/mês para os primeiros 200 assinantes). Quero aproveitar os 30 dias grátis."
+    },
+    {
+      "id": "pro-anual",
+      "name": "InEvolving Pro · Anual",
+      "price": "24,99",
+      "priceSuffix": "/mês",
+      "annualBillingNote": "Cobrança anual · R$ 299,88/ano",
+      "originalPrice": null,
+      "badge": "Melhor custo-benefício",
+      "highlighted": true,
+      "nameAccent": "purple",
+      "features": [
+        { "text": "Todas as funcionalidades do Starter", "included": true },
+        { "text": "Dashboard e Finanças completas", "included": true },
+        { "text": "Vision board automático", "included": true },
+        { "text": "Geração por IA", "included": true },
+        { "text": "Livros & aprendizado", "included": true }
+      ],
+      "description": "Menos de R$ 1 por dia: o investimento mais inteligente para quem quer compromisso de longo prazo com resultado.",
+      "ctaLabel": "Assinar Pro Anual",
+      "whatsappMessage": "Olá! Quero assinar o InEvolving Pro no plano anual (R$ 299,88/ano = R$ 24,99/mês). Quero aproveitar os 30 dias grátis."
+    }
+  ],
+  "segments": [
+    {
+      "id": "individual",
+      "title": "Individual",
+      "description": "Profissionais e estudantes: escolha entre Starter ou Pro — a partir de R$ 12,99/mês no Starter Anual.",
+      "ctaLabel": "Escolher plano no WhatsApp",
+      "whatsappMessage": "Olá! Quero assinar o InEvolving Pro no plano anual (R$ 299,88/ano = R$ 24,99/mês). Quero aproveitar os 30 dias grátis.",
+      "variant": "default"
+    },
+    {
+      "id": "time",
+      "title": "Time",
+      "description": "Squads e famílias que precisam alinhar objetivos, tarefas compartilhadas e visão única de progresso.",
+      "ctaLabel": "Onboarding para equipes",
+      "whatsappMessage": "Olá! Quero levar o InEvolving para minha equipe ou empresa.",
+      "badge": "Mais escolhido",
+      "variant": "highlighted"
+    },
+    {
+      "id": "empresa",
+      "title": "Empresa",
+      "description": "Implantação, governança, SLA e roadmap alinhado — o pacote para escala e conformidade.",
+      "ctaLabel": "Proposta corporativa",
+      "whatsappMessage": "Olá! Quero levar o InEvolving para minha equipe ou empresa.",
+      "variant": "dark"
+    }
+  ],
+  "whatsappPresets": {
+    "geral": "Olá! Tenho interesse no InEvolving e gostaria de falar com o time comercial.",
+    "demo": "Olá! Vim pela página do InEvolving e quero conhecer os planos e começar a usar.",
+    "quizResult": "Olá! Fiz o quiz de evolução do InEvolving e quero começar meu plano personalizado. Quero aproveitar os 30 dias grátis!"
+  }
+}
