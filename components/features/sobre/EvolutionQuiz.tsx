@@ -5,6 +5,7 @@ import { AnimatePresence, motion, animate, useInView } from "framer-motion";
 import { PrimaryLink } from "@/components/ui/PrimaryLink";
 import { getSiteLinks } from "@/lib/site-config";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useQuizFeedback } from "@/hooks/useQuizFeedback";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -311,37 +312,167 @@ function createQuizReducer(autoStart: boolean) {
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function ProgressBar({ step, total, reduce }: { step: number; total: number; reduce: boolean }) {
+function ProgressBar({
+  step,
+  total,
+  reduce,
+  pulseKey,
+}: {
+  step: number;
+  total: number;
+  reduce: boolean;
+  pulseKey: number;
+}) {
   const pct = Math.round(((step + 1) / total) * 100);
   return (
     <div className="mb-6">
       <div className="mb-2 flex items-center justify-between text-xs text-[var(--text-muted)]">
         <span>Pergunta {step + 1} de {total}</span>
-        <span className="font-mono font-semibold">{pct}%</span>
+        <motion.span
+          key={`pct-${step}`}
+          className="font-mono font-semibold text-brand-cyan dark:text-brand-pink"
+          initial={reduce ? false : { scale: 1.35, opacity: 0.5 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {pct}%
+        </motion.span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--glass-border)]">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[var(--glass-border)]">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-brand-blue to-brand-cyan dark:from-brand-purple dark:to-brand-pink"
+          className="relative h-full rounded-full bg-gradient-to-r from-brand-blue to-brand-cyan dark:from-brand-purple dark:to-brand-pink"
           initial={false}
           animate={{ width: `${pct}%` }}
           transition={{ duration: reduce ? 0.15 : 0.5, ease: [0.22, 1, 0.36, 1] }}
         />
+        {!reduce && (
+          <motion.div
+            key={pulseKey}
+            className="pointer-events-none absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-white/50 via-brand-cyan/40 to-transparent dark:from-white/25 dark:via-brand-pink/35"
+            style={{ width: `${pct}%` }}
+            initial={{ opacity: 0.85 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            aria-hidden
+          />
+        )}
       </div>
     </div>
   );
 }
 
+function OptionSelectionBurst({ active, reduce }: { active: boolean; reduce: boolean }) {
+  if (!active || reduce) return null;
+
+  return (
+    <>
+      <motion.span
+        className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-cyan/35 to-brand-blue/20 dark:from-brand-pink/35 dark:to-brand-purple/20"
+        initial={{ opacity: 0.75, scale: 0.94 }}
+        animate={{ opacity: 0, scale: 1.06 }}
+        transition={{ duration: 0.42, ease: "easeOut" }}
+        aria-hidden
+      />
+      <motion.span
+        className="pointer-events-none absolute -inset-px rounded-[17px] border-2 border-brand-cyan/70 dark:border-brand-pink/65"
+        initial={{ opacity: 1, scale: 1 }}
+        animate={{ opacity: 0, scale: 1.04 }}
+        transition={{ duration: 0.38, ease: "easeOut" }}
+        aria-hidden
+      />
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-cyan shadow-[0_0_8px_rgba(34,211,238,0.8)] dark:bg-brand-pink dark:shadow-[0_0_8px_rgba(236,72,153,0.8)]"
+          initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          animate={{
+            opacity: 0,
+            x: (i - 1) * 22,
+            y: -24 - i * 10,
+            scale: 0.2,
+          }}
+          transition={{ duration: 0.48, ease: "easeOut", delay: i * 0.03 }}
+          aria-hidden
+        />
+      ))}
+    </>
+  );
+}
+
 function QuizStep({
-  questionId, title, options, selected, onSelect, onBack, step, total, reduce, direction,
+  questionId,
+  title,
+  options,
+  selected,
+  onSelect,
+  onBack,
+  step,
+  total,
+  reduce,
+  direction,
+  onSelectFeedback,
+  onBackFeedback,
 }: {
-  questionId: string; title: string; options: Option[]; selected?: string;
-  onSelect: (v: string) => void; onBack?: () => void;
-  step: number; total: number; reduce: boolean; direction: 1 | -1;
+  questionId: string;
+  title: string;
+  options: Option[];
+  selected?: string;
+  onSelect: (v: string) => void;
+  onBack?: () => void;
+  step: number;
+  total: number;
+  reduce: boolean;
+  direction: 1 | -1;
+  onSelectFeedback: () => void;
+  onBackFeedback: () => void;
 }) {
   const isWide = options.length === 6;
+  const [burstValue, setBurstValue] = React.useState<string | null>(null);
+  const [progressPulse, setProgressPulse] = React.useState(0);
+  const [isAdvancing, setIsAdvancing] = React.useState(false);
+  const selectTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(
+    () => () => {
+      if (selectTimerRef.current) clearTimeout(selectTimerRef.current);
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    setBurstValue(null);
+    setIsAdvancing(false);
+  }, [questionId]);
+
+  const handleSelect = React.useCallback(
+    (value: string) => {
+      if (isAdvancing) return;
+      if (selectTimerRef.current) clearTimeout(selectTimerRef.current);
+
+      setIsAdvancing(true);
+      setBurstValue(value);
+      setProgressPulse((n) => n + 1);
+      onSelectFeedback();
+
+      const delay = reduce ? 0 : 130;
+      selectTimerRef.current = setTimeout(() => {
+        onSelect(value);
+        setBurstValue(null);
+        setIsAdvancing(false);
+        selectTimerRef.current = null;
+      }, delay);
+    },
+    [isAdvancing, onSelect, onSelectFeedback, reduce],
+  );
+
+  const handleBack = React.useCallback(() => {
+    onBackFeedback();
+    onBack?.();
+  }, [onBack, onBackFeedback]);
+
   return (
     <div className="w-full [perspective:1600px]">
-      <ProgressBar step={step} total={total} reduce={reduce} />
+      <ProgressBar step={step} total={total} reduce={reduce} pulseKey={progressPulse} />
       <motion.div
         key={questionId}
         className="[transform-style:preserve-3d]"
@@ -374,34 +505,51 @@ function QuizStep({
         <div className={`grid gap-3 ${isWide ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
           {options.map((opt, i) => {
             const isSelected = selected === opt.value;
+            const isBursting = burstValue === opt.value;
             return (
               <motion.button
                 key={opt.value}
                 type="button"
-                onClick={() => onSelect(opt.value)}
+                onClick={() => handleSelect(opt.value)}
+                disabled={isAdvancing}
                 initial={reduce ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: isBursting && !reduce ? 1.03 : 1,
+                  boxShadow:
+                    isBursting && !reduce
+                      ? "0 0 28px rgba(34, 211, 238, 0.35)"
+                      : "0 0 0px rgba(0,0,0,0)",
+                }}
                 transition={{ delay: i * 0.055, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={reduce ? undefined : { scale: 1.02 }}
-                whileTap={reduce ? undefined : { scale: 0.97 }}
+                whileTap={reduce ? undefined : { scale: 0.96 }}
                 className={[
-                  "group relative flex flex-col items-start gap-1.5 rounded-2xl border p-4 text-left transition-all duration-300",
-                  isSelected
+                  "group relative flex flex-col items-start gap-1.5 overflow-hidden rounded-2xl border p-4 text-left transition-colors duration-300",
+                  isSelected || isBursting
                     ? "border-brand-cyan/70 bg-gradient-to-br from-brand-blue/10 to-brand-cyan/10 shadow-glow dark:border-brand-pink/60 dark:from-brand-purple/15 dark:to-brand-pink/10"
                     : "border-[var(--glass-border)] bg-[var(--glass-bg)] hover:border-brand-cyan/40 hover:bg-brand-blue/5 dark:hover:border-brand-pink/35",
                 ].join(" ")}
               >
-                {isSelected && (
+                <OptionSelectionBurst active={isBursting} reduce={reduce} />
+                {(isSelected || isBursting) && (
                   <motion.span
                     className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-cyan text-[10px] text-white dark:from-brand-purple dark:to-brand-pink"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                    initial={{ scale: 0, rotate: -120 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 520, damping: 20 }}
                   >
                     ✓
                   </motion.span>
                 )}
-                <span className="text-2xl leading-none">{opt.icon}</span>
+                <motion.span
+                  className="text-2xl leading-none"
+                  animate={isBursting && !reduce ? { scale: [1, 1.22, 1], rotate: [0, -6, 0] } : { scale: 1 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                  {opt.icon}
+                </motion.span>
                 <span className="font-semibold text-[var(--text-primary)]">{opt.label}</span>
                 {opt.desc && <span className="text-xs text-[var(--text-muted)]">{opt.desc}</span>}
               </motion.button>
@@ -411,7 +559,7 @@ function QuizStep({
         {onBack && (
           <motion.button
             type="button"
-            onClick={onBack}
+            onClick={handleBack}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.28 }}
@@ -887,6 +1035,7 @@ export type EvolutionQuizProps = {
 
 export function EvolutionQuiz({ autoStart = false }: EvolutionQuizProps) {
   const reduce = useReducedMotion();
+  const { playSelect, playAdvance, playBack, playComplete } = useQuizFeedback(reduce);
 
   const [state, dispatch] = React.useReducer(createQuizReducer(autoStart), {
     phase: autoStart ? "quiz" : "intro",
@@ -937,12 +1086,19 @@ export function EvolutionQuiz({ autoStart = false }: EvolutionQuizProps) {
               title={currentQuestion.title}
               options={currentQuestion.options}
               selected={currentAnswer}
-              onSelect={(value) => dispatch({ type: "ANSWER", questionId: currentQuestion.id, value })}
+              onSelect={(value) => {
+                const nextStep = state.currentStep + 1;
+                dispatch({ type: "ANSWER", questionId: currentQuestion.id, value });
+                if (nextStep >= TOTAL_STEPS) playComplete();
+                else playAdvance();
+              }}
               onBack={state.currentStep > 0 ? () => dispatch({ type: "BACK" }) : undefined}
               step={state.currentStep}
               total={TOTAL_STEPS}
               reduce={reduce}
               direction={state.direction}
+              onSelectFeedback={playSelect}
+              onBackFeedback={playBack}
             />
           </motion.div>
         )}
