@@ -15,7 +15,6 @@ import { getSiteLinks, getWhatsappPreset } from "@/lib/site-config";
 const NAV_ITEMS = [
   { href: "#inicio", label: "Início" },
   { href: "#quiz", label: "Quiz" },
-  { href: "#beneficios", label: "Benefícios" },
   { href: "#depoimento", label: "Resultados" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -134,56 +133,11 @@ export function PrimeirosPassosPageContent() {
         </div>
       </section>
 
-      <section id="beneficios" className="border-y border-[var(--glass-border)] px-4 py-16 sm:px-6 md:px-8">
-        <FadeInView className="mx-auto max-w-6xl">
-          <div className="mb-10 text-center">
-            <h2 className="font-mono text-xs font-semibold uppercase tracking-widest text-brand-purple dark:text-brand-pink">
-              Por que converte mais
-            </h2>
-            <p className="mt-2 text-2xl font-bold text-[var(--text-primary)] md:text-3xl">
-              Menos fricção, mais cadastros em minutos
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Cadastro gratuito real",
-                body: "Teste por 30 dias sem cartão. Isso reduz objeção e acelera decisão.",
-              },
-              {
-                title: "Plano personalizado imediato",
-                body: "A pessoa vê resultado já no quiz e entra motivada para agir no produto.",
-              },
-              {
-                title: "Experiência premium",
-                body: "Visual 3D e motion profissional reforçam confiança e percepção de valor.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-6 backdrop-blur-glass"
-                initial={reduce ? false : { opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={reduce ? undefined : { y: -5 }}
-              >
-                <h3 className="text-lg font-semibold text-[var(--text-primary)]">{item.title}</h3>
-                <p className="mt-2 text-sm text-[var(--text-muted)]">{item.body}</p>
-              </motion.div>
-            ))}
-          </div>
-          <div className="mt-8 flex justify-center">
-            <PrimaryLink href={links.cadastro}>Criar minha conta grátis agora</PrimaryLink>
-          </div>
-        </FadeInView>
-      </section>
-
       <section id="depoimento" className="px-4 py-16 sm:px-6 md:px-8">
         <FadeInView className="mx-auto max-w-3xl text-center">
           <blockquote className="text-pretty text-lg font-medium leading-relaxed text-[var(--text-primary)] md:text-xl">
-            &ldquo;A pessoa faz o quiz, enxerga um caminho claro e já entra com vontade de executar. A taxa de cadastro
-            aumenta porque o próximo passo faz sentido.&rdquo;
+            &ldquo;A pessoa faz o quiz, enxerga um caminho claro e já entra com vontade de executar. A evolução acontece
+            por que, o próximo passo faz sentido.&rdquo;
           </blockquote>
           <p className="mt-4 text-sm text-[var(--text-muted)]">— Time de crescimento InEvolving</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
