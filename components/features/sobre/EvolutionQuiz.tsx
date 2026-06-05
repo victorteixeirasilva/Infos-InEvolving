@@ -411,7 +411,9 @@ function QuizStep({
   reduce,
   direction,
   onSelectFeedback,
+  onSelectHaptic,
   onBackFeedback,
+  onBackHaptic,
 }: {
   questionId: string;
   title: string;
@@ -424,7 +426,9 @@ function QuizStep({
   reduce: boolean;
   direction: 1 | -1;
   onSelectFeedback: () => void;
+  onSelectHaptic: (isLastStep: boolean) => void;
   onBackFeedback: () => void;
+  onBackHaptic: () => void;
 }) {
   const isWide = options.length === 6;
   const [burstValue, setBurstValue] = React.useState<string | null>(null);
@@ -452,6 +456,7 @@ function QuizStep({
       setIsAdvancing(true);
       setBurstValue(value);
       setProgressPulse((n) => n + 1);
+      onSelectHaptic(step === total - 1);
       onSelectFeedback();
 
       const delay = reduce ? 0 : 130;
@@ -462,13 +467,14 @@ function QuizStep({
         selectTimerRef.current = null;
       }, delay);
     },
-    [isAdvancing, onSelect, onSelectFeedback, reduce],
+    [isAdvancing, onSelect, onSelectFeedback, onSelectHaptic, reduce, step, total],
   );
 
   const handleBack = React.useCallback(() => {
+    onBackHaptic();
     onBackFeedback();
     onBack?.();
-  }, [onBack, onBackFeedback]);
+  }, [onBack, onBackFeedback, onBackHaptic]);
 
   return (
     <div className="w-full [perspective:1600px]">
@@ -1035,7 +1041,8 @@ export type EvolutionQuizProps = {
 
 export function EvolutionQuiz({ autoStart = false }: EvolutionQuizProps) {
   const reduce = useReducedMotion();
-  const { playSelect, playAdvance, playBack, playComplete } = useQuizFeedback(reduce);
+  const { playSelect, playAdvance, playBack, playComplete, hapticOnSelect, hapticOnBack } =
+    useQuizFeedback(reduce);
 
   const [state, dispatch] = React.useReducer(createQuizReducer(autoStart), {
     phase: autoStart ? "quiz" : "intro",
@@ -1098,7 +1105,9 @@ export function EvolutionQuiz({ autoStart = false }: EvolutionQuizProps) {
               reduce={reduce}
               direction={state.direction}
               onSelectFeedback={playSelect}
+              onSelectHaptic={hapticOnSelect}
               onBackFeedback={playBack}
+              onBackHaptic={hapticOnBack}
             />
           </motion.div>
         )}
